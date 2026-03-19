@@ -66,7 +66,7 @@ bool flash_device_get(const char *name, struct flash_device *t)
 {
 	HSQUIRRELVM v = qr_open(); 
 	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script("flashdevice.nut")), SQFalse, SQTrue))){
-		puts("flash device script error");
+		fprintf(stdout, "\033[1;31mFlash device script error\033[0m\n");
 		qr_close(v);
 		return false;
 	}
@@ -105,7 +105,7 @@ bool flash_device_get(const char *name, struct flash_device *t)
 	return true;
 
 field_error:
-	puts("script field error");
+	fprintf(stdout, "\033[1;31mScript field error\033[0m\n");
 	qr_close(v);
 	return false;
 }

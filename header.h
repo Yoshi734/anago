@@ -49,6 +49,7 @@ struct romimage{
 	struct flash_order cpu_flash, ppu_flash;
 #endif
 	long mappernum;
+	long submappernum;
 	enum vram_mirroring mirror;
 	int backupram;
 };

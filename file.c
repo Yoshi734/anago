@@ -99,7 +99,6 @@ const char * find_script(const char * name)
 	 * won't exist, and we'll try the next case instead */
 	strcpy(temppath, getenv("HOME"));
 	strcat(temppath, CONFIG_DIR);
-	
 	/* Search in user's config folder first */
 	result = test_path(temppath, name);
 	if (result == NULL)
@@ -111,9 +110,17 @@ const char * find_script(const char * name)
 		result = test_path(temppath, name);
 		if (result == NULL)
 		{
+			/*Not found. Check ../scripts/ next */
+			strcpy(temppath, "../scripts/");
+		
+			result = test_path(temppath, name);
+			if (result == NULL)
+			{
 			/* Still not found. Just try opening what 
 			 * the user provided. */
+
 			result = name;
+			}
 		}
 	}
 	

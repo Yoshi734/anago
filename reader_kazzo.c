@@ -27,7 +27,7 @@ static usb_dev_handle *device_open(void)
 	if(open_result == USBOPEN_SUCCESS){
 		return handle;
 	}
-	fprintf(stderr, "Could not find USB device \"%s\" with vid=0x%x pid=0x%x; code: %d\n", 
+	fprintf(stdout, "\033[1;31mCould not find USB device \"%s\" with vid=0x%x pid=0x%x; code: %d\033[0m\n", 
 		product, vid, pid, open_result);
 	return NULL;
 }
@@ -60,8 +60,7 @@ static void device_read(usb_dev_handle *handle, enum request r, enum index index
 		index, (char *)data, length, TIMEOUT
 	);
 	if(cnt != length){
-		puts(__FUNCTION__);
-		puts(usb_strerror());
+		fprintf(stdout, "\033[1;31m%s : %s\033[0m\n", __FUNCTION__, usb_strerror());
 		exit(1);
 	}
 }
@@ -112,8 +111,7 @@ static void device_write(usb_dev_handle *handle, enum request w,
 		index, (char *)d, length, TIMEOUT
 	);
 	if(cnt != length){
-		puts(__FUNCTION__);
-		puts(usb_strerror());
+		fprintf(stdout, "\033[1;31m%s : %s\033[0m\n", __FUNCTION__, usb_strerror());
 		exit(1);
 	}
 	Free(d);
@@ -198,16 +196,15 @@ static void dump(const uint8_t *w, const uint8_t *r, long length)
 	while(length != 0){
 		if(memcmp(r, w, 0x10) != 0){
 			int i;
-			printf("* ");
+			fprintf(stdout, "* ");
 			for(i = 0; i < 0x10; i+=4){
-				printf("%02x %02x %02x %02x-", w[i], w[i+1], w[i+2], w[i+3]);
+				fprintf(stdout, "%02x %02x %02x %02x-", w[i], w[i+1], w[i+2], w[i+3]);
 			}
-			puts("");
-			printf("  ");
+			fprintf(stdout, "\n  ");
 			for(i = 0; i < 0x10; i+=4){
-				printf("%02x %02x %02x %02x-", r[i], r[i+1], r[i+2], r[i+3]);
+				fprintf(stdout, "%02x %02x %02x %02x-", r[i], r[i+1], r[i+2], r[i+3]);
 			}
-			puts("");
+			fprintf(stdout, "\n");
 		}
 		w += 0x10;
 		r += 0x10;
@@ -229,7 +226,7 @@ static long flash_program(enum index index, long address, long length, const uin
 		if(0){
 			//device_read(handle, REQUEST_FLASH_BUFFER_GET, index, 0, FLASH_PACKET_SIZE, d);
 			if(memcmp(d, data, FLASH_PACKET_SIZE) != 0){
-				puts("packet send error");
+				fprintf(stdout, "\033[1;31mPacket send error\033[0m\n");
 				dump(data, d, FLASH_PACKET_SIZE);
 			}
 		}

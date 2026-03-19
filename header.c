@@ -28,6 +28,18 @@ static
 #endif
 void nesheader_set(const struct romimage *r, u8 *header)
 {
+	long mappernum = r->mappernum;
+	long submappernum = r->submappernum;
+
+	if((mappernum<0) || (mappernum>4095)) {
+		fprintf(stdout, "\033[1;35mWarning : Parameter \"mappernum = %ld\" invalid in the script (set to 0)\033[0m\n", mappernum);
+		mappernum = 0;
+	}
+	if((submappernum<0) || (submappernum>15)) {
+		fprintf(stdout, "\033[1;35mWarning : Parameter \"submappernum = %ld\" invalid in the script (set to 0)\033[0m\n", submappernum);
+		submappernum = 0;
+	}
+
 	memcpy(header, NES_HEADER_INIT, NES_HEADER_SIZE);
 	header[4] = r->cpu_rom.size / PROGRAM_ROM_MIN;
 	header[5] = r->ppu_rom.size / CHARCTER_ROM_MIN;
@@ -37,9 +49,20 @@ void nesheader_set(const struct romimage *r, u8 *header)
 	if((r->cpu_ram.size != 0) || (r->backupram != 0)){
 		header[6] |= 0x02;
 	}
+
 	//4 screen は無視
-	header[6] |= (r->mappernum & 0x0f) << 4;
-	header[7] |= r->mappernum & 0xf0;
+	header[6] |= (mappernum & 0x0F) << 4;
+	header[7] |= mappernum & 0xF0;
+	if(mappernum>255) {
+		// NES 2.0 header format
+		header[7] |= 0x8;
+		header[8] |= (mappernum >> 8) & 0xF;
+	}
+	if(submappernum!=0) {
+		// NES 2.0 header format
+		header[7] |= 0x8;
+		header[8] |= (submappernum & 0xF) << 4;
+	}
 }
 
 #ifndef HEADEROUT
@@ -56,7 +79,7 @@ static int mirroring_fix(struct memory *m, long min)
 		if(memcmp(m->data, halfbuf, mirror_size) != 0){
 			const long ret = mirror_size * 2;
 			if(m->size != ret){
-				printf("mirroring %s rom fixed\n", m->name);
+				fprintf(stdout, "Mirroring %s rom fixed\n", m->name);
 				m->size = ret;
 			}
 			return 0;
@@ -69,10 +92,10 @@ static int mirroring_fix(struct memory *m, long min)
 	ffdata = Malloc(min);
 	memset(ffdata, 0xff, min);
 	if(memcmp(ffdata, m->data, min) == 0){
-		printf("error: data is all 0xff\n");
+		fprintf(stdout, "\033[1;31mError: data is all 0xff\033[0m\n");
 		ret = 1;
 	}else if(m->size != min){
-		printf("mirroring %s rom fixed\n", m->name);
+		fprintf(stdout, "Mirroring %s rom fixed\n", m->name);
 		m->size = min;
 	}
 	Free(ffdata);
@@ -85,9 +108,9 @@ static void rominfo_print(const struct memory *m)
 {
 	if(m->size != 0){
 		const uint32_t crc = crc32_get(m->data, m->size);
-		printf("%s ROM: size 0x%06x, crc32 0x%08x\n", m->name, m->size, (const int) crc);
+		fprintf(stdout, "%s ROM: size 0x%06x, crc32 0x%08x\n", m->name, m->size, (const int) crc);
 	}else{
-		printf("%s RAM\n", m->name);
+		fprintf(stdout, "%s RAM\n", m->name);
 	}
 }
 
@@ -105,7 +128,7 @@ void nesfile_create(struct romimage *r, const char *romfilename)
 		return;
 	}
 	//修正済み ROM 情報表示
-	printf("mapper %d\n", (int) r->mappernum);
+	fprintf(stdout, "Mapper %d / Submapper %d\n", (int) r->mappernum, (int) r->submappernum);
 	rominfo_print(&(r->cpu_rom));
 	rominfo_print(&(r->ppu_rom));
 
@@ -233,12 +256,12 @@ bool nesfile_load(const char *errorprefix, const char *file, struct romimage *r)
 	
 	buf = buf_load_full(file, &imagesize);
 	if(buf == NULL || imagesize < (NES_HEADER_SIZE + PROGRAM_ROM_MIN)){
-		printf("%s ROM image open error\n", errorprefix);
+		fprintf(stdout, "\033[1;31m%s ROM image open error\033[0m\n", errorprefix);
 		return false;
 	}
 	//nes header check
 	if(memcmp(buf, NES_HEADER_INIT, 4) != 0){
-		printf("%s NES header identify error\n", errorprefix);
+		fprintf(stdout, "\033[1;31m%s NES header identify error\033[0m\n", errorprefix);
 		Free(buf);
 		return false;
 	}
@@ -256,7 +279,7 @@ bool nesfile_load(const char *errorprefix, const char *file, struct romimage *r)
 		r->mappernum = mapper;
 #else
 		if(r->mappernum != mapper){
-			printf("%s NES header mapper error\n", errorprefix);
+			fprintf(stdout, "\033[1;31m%s NES header mapper error\033[0m\n", errorprefix);
 			Free(buf);
 			return false;
 		}
@@ -276,7 +299,7 @@ bool nesfile_load(const char *errorprefix, const char *file, struct romimage *r)
 		r->ppu_rom.size = ppusize;
 		//NESfilesize
 		if(offset != imagesize){
-			printf("%s NES header filesize error\n", errorprefix);
+			fprintf(stdout, "\033[1;31m%s NES header filesize error\033[0m\n", errorprefix);
 			Free(buf);
 			return false;
 		}

@@ -52,7 +52,7 @@ static void buffer_show(struct memory *t, long length)
 {
 	int i;
 	const uint8_t *buf = t->data + t->offset;
-	printf("%s 0x%06x:", t->name, t->offset);
+	fprintf(stdout, "%s 0x%06x:", t->name, t->offset);
 	for(i = 0; i < 0x10; i++){
 		char dump[3+1];
 		sprintf(dump, "%02x", buf[i]);
@@ -68,7 +68,7 @@ static void buffer_show(struct memory *t, long length)
 			break;
 		}
 		dump[3] = '\0';
-		printf("%s", dump);
+		fprintf(stdout, "%s", dump);
 	}
 	int sum = 0;
 	while(length != 0){
@@ -76,7 +76,7 @@ static void buffer_show(struct memory *t, long length)
 		buf++;
 		length--;
 	}
-	printf(":0x%06x\n", sum);
+	fprintf(stdout, ":0x%06x\n", sum);
 	fflush(stdout);
 }
 
@@ -188,12 +188,14 @@ static SQInteger nesfile_save(HSQUIRRELVM v)
 	}
 	struct romimage image;
 	long mirrorfind;
-	r = qr_argument_get(v, 2, &image.mappernum, &mirrorfind);
+	r = qr_argument_get(v, 3, &image.mappernum, &image.submappernum, &mirrorfind);
 	if(SQ_FAILED(r)){
 		return r;
 	}
 	image.cpu_rom = d->cpu.memory;
 	image.cpu_ram.data = NULL;
+	image.cpu_ram.size = 0;
+	image.backupram = 0;
 	image.ppu_rom = d->ppu.memory;
 	image.mirror = MIRROR_PROGRAMABLE;
 	if(mirrorfind == 1){
@@ -203,7 +205,6 @@ static SQInteger nesfile_save(HSQUIRRELVM v)
 			image.mirror = MIRROR_HORIZONAL;
 		}
 	}
-	image.backupram = 0;
 	nesfile_create(&image, d->target);
 	nesbuffer_free(&image, 0); //0 is MODE_xxx_xxxx
 	
@@ -226,13 +227,13 @@ static SQInteger length_check(HSQUIRRELVM v)
 		cpu = false;
 	}
 	if(cpu == false){
-		printf("cpu_romsize is not connected 0x%06x/0x%06x\n", (int) d->cpu.read_count, (int) d->cpu.memory.size);
+		fprintf(stdout, "\033[1;31mcpu_romsize is not connected 0x%06x/0x%06x\033[0m\n", (int) d->cpu.read_count, (int) d->cpu.memory.size);
 	}
 	if(d->ppu.memory.size != d->ppu.read_count){
 		ppu = false;
 	}
 	if(ppu == false){
-		printf("ppu_romsize is not connected 0x%06x/0x%06x\n", (int) d->ppu.read_count, (int) d->ppu.memory.size);
+		fprintf(stdout, "\033[1;31mppu_romsize is not connected 0x%06x/0x%06x\033[0m\n", (int) d->ppu.read_count, (int) d->ppu.memory.size);
 	}
 	if(cpu == false || ppu == false){
 		r = sq_throwerror(v, "script logical error");
@@ -252,7 +253,7 @@ static SQInteger read_count(HSQUIRRELVM v, struct memory_driver *t, const struct
 		return r;
 	}
 	if((address < range_address->start) || ((address + length) > range_address->end)){
-		printf("address range must be 0x%06x to 0x%06x", (int) range_address->start, (int) range_address->end);
+		fprintf(stdout, "\033[1;31mAddress range must be 0x%06x to 0x%06x\033[0m\n", (int) range_address->start, (int) range_address->end);
 		return sq_throwerror(v, "script logical error");;
 	}
 	t->read_count += length;
@@ -287,15 +288,15 @@ static bool script_execute(HSQUIRRELVM v, struct config_dump *c, struct dump_dri
 {
 	bool ret = true;
 	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script("dumpcore.nut")), SQFalse, SQTrue))){
-		printf("dump core script error\n");
+		fprintf(stdout, "\033[1;31mDump core script error (dumpcore.nut)\033[0m\n");
 		ret = false;
 	}else if(SQ_FAILED(sqstd_dofile(v, _SC(find_script(c->script)), SQFalse, SQTrue))){
-		printf("%s open error\n", c->script);
+		fprintf(stdout, "\033[1;31m%s open error\033[0m\n", c->script);
 		ret = false;
 	}else{
 		SQRESULT r = qr_call(
 			v, "dump", (SQUserPointer) d, true, 
-			3, c->mappernum, c->increase.cpu, c->increase.ppu
+			4, c->mappernum, c->submappernum, c->increase.cpu, c->increase.ppu
 		);
 		if(SQ_FAILED(r)){
 			ret = false;

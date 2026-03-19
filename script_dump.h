@@ -4,6 +4,7 @@ struct config_dump{
 	const char *script, *target;
 	const struct reader_driver *reader;
 	long mappernum;
+	long submappernum;
 	//struct romimage rom;
 	struct {long cpu, ppu;} increase;
 	bool progress;

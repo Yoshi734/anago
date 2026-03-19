@@ -62,7 +62,7 @@ void mm_end(void)
 	struct manage *t = management;
 	for(i = 0; i < MANAGE_NUM; i++){
 		if(t->addr != NULL){
-			printf("**free forgot** %s:%d %s() size %d\n", t->file, t->line, t->function, t->size);
+			fprintf(stdout, "**free forgot** %s:%d %s() size %d\n", t->file, t->line, t->function, t->size);
 		}
 		t++;
 	}

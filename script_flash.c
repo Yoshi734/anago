@@ -46,7 +46,7 @@ static SQInteger vram_mirrorfind(HSQUIRRELVM v)
 		return r;
 	}
 	if((d->vram_connection() == 0x05) != (d->vram_mirroring == MIRROR_VERTICAL)){
-		puts("warning: vram mirroring is inconnect");
+		fprintf(stdout, "\033[1;35mWarning: vram mirroring is inconnect\033[0m\n");
 	}
 	return 0;
 }
@@ -125,7 +125,7 @@ static SQInteger erase_set(HSQUIRRELVM v, struct anago_flash_order *t, const cha
 	t->command_change = false;
 	if(t->device->erase_require == true){
 		t->erase(t->c2aaa, false);
-		printf("erasing %s memory...\n", region);
+		fprintf(stdout, "Erasing %s memory...\n", region);
 		fflush(stdout);
 	}
 	return 0;
@@ -164,7 +164,7 @@ static SQInteger program_regist(HSQUIRRELVM v, const char *name, struct anago_fl
 		t->command_change = false;
 	}
 	
-/*	printf("programming %s ROM area 0x%06x...\n", name, t->memory->offset);
+/*	fprintf(stdout, "Programming %s ROM area 0x%06x...\n", name, t->memory->offset);
 	fflush(stdout);*/
 	return sq_suspendvm(v);
 }
@@ -251,7 +251,7 @@ static bool program_memoryarea(HSQUIRRELVM co, struct anago_flash_order *t, bool
 	if(t->programming.length == 0){
 		if(t->programming.offset != 0 && compare == true){
 			if(program_compare(t) == false){
-				printf("%s memory compare error\n", region);
+				fprintf(stdout, "\033[1;31m%s memory compare error\033[0m\n", region);
 				return false;
 			}
 		}
@@ -320,7 +320,7 @@ static SQInteger program_count(HSQUIRRELVM v, struct anago_flash_order *t, const
 		return r;
 	}
 	if((t->programming.address < range_address->start) || ((t->programming.address + t->programming.length) > range_address->end)){
-		printf("address range must be 0x%06x to 0x%06x", (int) range_address->start, (int) range_address->end - 1);
+		fprintf(stdout, "\033[1;31mAddress range must be 0x%06x to 0x%06x\033[0m\n", (int) range_address->start, (int) range_address->end - 1);
 		return sq_throwerror(v, "script logical error");;
 	}
 	t->programming.count += t->programming.length;
@@ -355,10 +355,10 @@ static bool script_execute(HSQUIRRELVM v, struct config_flash *c, struct anago_d
 {
 	bool ret = true;
 	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script("flashcore.nut")), SQFalse, SQTrue))){
-		printf("flash core script error\n");
+		fprintf(stdout, "\033[1;31mFlash core script error (flashcore.nut)\033[0m\n");
 		ret = false;
 	}else if(SQ_FAILED(sqstd_dofile(v, _SC(find_script(c->script)), SQFalse, SQTrue))){
-		printf("%s open error\n", c->script);
+		fprintf(stdout, "\033[1;31m%s open error\033[0m\n", c->script);
 		ret = false;
 	}else{
 		SQRESULT r = qr_call(
@@ -435,12 +435,12 @@ void script_flash_execute(struct config_flash *c)
 		qr_close(v);
 		assert(d.order_cpu.memory->size != 0);
 		if(d.order_cpu.programming.count % d.order_cpu.memory->size  != 0){
-			printf("logical error: cpu_programsize is not connected 0x%06x/0x%06x\n", (int) d.order_cpu.programming.count, (int) d.order_cpu.memory->size);
+			fprintf(stdout, "\033[1;31mLogical error: cpu_programsize is not connected 0x%06x/0x%06x\033[0m\n", (int) d.order_cpu.programming.count, (int) d.order_cpu.memory->size);
 			return;
 		}
 		if(d.order_ppu.memory->size != 0){
 			if(d.order_ppu.programming.count % d.order_ppu.memory->size != 0){
-				printf("logical error: ppu_programsize is not connected 0x%06x/0x%06x\n", (int) d.order_ppu.programming.count, (int) d.order_ppu.memory->size);
+				fprintf(stdout, "\033[1;31mLogical error: ppu_programsize is not connected 0x%06x/0x%06x\033[0m\n", (int) d.order_ppu.programming.count, (int) d.order_ppu.memory->size);
 				return;
 			}
 		}

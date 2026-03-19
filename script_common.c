@@ -16,7 +16,7 @@ SQInteger script_nop(HSQUIRRELVM v)
 SQInteger range_check(HSQUIRRELVM v, const char *name, long target, const struct range *range)
 {
 	if((target < range->start) || (target > range->end)){
-		printf("%s range must be 0x%06x to 0x%06x", name, (int) range->start, (int) range->end);
+		fprintf(stdout, "\033[1;31m%s range must be 0x%06x to 0x%06x\033[0m\n", name, (int) range->start, (int) range->end);
 		return sq_throwerror(v, "script logical error");
 	}
 	return 0;

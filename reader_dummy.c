@@ -14,65 +14,65 @@ static int dummy_open_close(enum reader_control oc)
 //---- cpu ----
 static void dummy_cpu_read(long address, long length, uint8_t *data)
 {
-	printf("%s %06x %04x\n", __FUNCTION__, (int) address, (int) length);
+	fprintf(stdout, "%s %06x %04x\n", __FUNCTION__, (int) address, (int) length);
 	memset(data, 0x55, length);
 }
 static void dummy_cpu_write_6502(long address, long length, const uint8_t *data)
 {
-	printf("%s %04x %04x %02x\n", __FUNCTION__, (int) address, (int) length, (int) *data);
+	fprintf(stdout, "%s %04x %04x %02x\n", __FUNCTION__, (int) address, (int) length, (int) *data);
 }
 static void dummy_cpu_flash_config(long c000x, long c2aaa, long c5555, long unit)
 {
-	printf("%s %04x %04x %04x %04x\n", __FUNCTION__, (int) c000x, (int) c2aaa, (int) c5555, (int) unit);
+	fprintf(stdout, "%s %04x %04x %04x %04x\n", __FUNCTION__, (int) c000x, (int) c2aaa, (int) c5555, (int) unit);
 }
 static long dummy_cpu_flash_program(long address, long length, const u8 *data, bool dowait)
 {
 	int i = 0x10;
-	printf("%s %06x\n", __FUNCTION__, (int) address);
+	fprintf(stdout, "%s %06x\n", __FUNCTION__, (int) address);
 	while(i != 0){
-		printf("%02x ", *data);
+		fprintf(stdout, "%02x ", *data);
 		data++;
 		i--;
 	}
-	printf("\n");
+	fprintf(stdout, "\n");
 	return 0x100;
 }
 
 static void dummy_cpu_flash_erase(long address, bool dowait)
 {
-	printf("%s %04x\n", __FUNCTION__, (int) address);
+	fprintf(stdout, "%s %04x\n", __FUNCTION__, (int) address);
 }
 
 //---- ppu ----
 static void dummy_ppu_read(long address, long length, u8 *data)
 {
-	printf("%s %06x %04x\n", __FUNCTION__, (int) address, (int) length);
+	fprintf(stdout, "%s %06x %04x\n", __FUNCTION__, (int) address, (int) length);
 	memset(data, 0x55, length);
 }
 static void dummy_ppu_write(long address, long length, const uint8_t *data)
 {
-	printf("%s %04x %04x %02x\n", __FUNCTION__, (int) address, (int) length, (int) *data);
+	fprintf(stdout, "%s %04x %04x %02x\n", __FUNCTION__, (int) address, (int) length, (int) *data);
 }
 static void dummy_ppu_flash_config(long c000x, long c2aaa, long c5555, long unit)
 {
-	printf("%s %04x %04x %04x %04x\n", __FUNCTION__, (int) c000x, (int) c2aaa, (int) c5555, (int) unit);
+	fprintf(stdout, "%s %04x %04x %04x %04x\n", __FUNCTION__, (int) c000x, (int) c2aaa, (int) c5555, (int) unit);
 }
 static long dummy_ppu_flash_program(long address, long length, const u8 *data, bool dowait)
 {
 	int i = 0x10;
-	printf("%s %06x\n", __FUNCTION__, (int) address);
+	fprintf(stdout, "%s %06x\n", __FUNCTION__, (int) address);
 	while(i != 0){
-		printf("%02x ", *data);
+		fprintf(stdout, "%02x ", *data);
 		data++;
 		i--;
 	}
-	printf("\n");
+	fprintf(stdout, "\n");
 	return 0x100;
 }
 
 static void dummy_ppu_flash_erase(long address, bool dowait)
 {
-	printf("%s %04x\n", __FUNCTION__, (int) address);
+	fprintf(stdout, "%s %04x\n", __FUNCTION__, (int) address);
 }
 
 static void dummy_flash_status(uint8_t s[2])

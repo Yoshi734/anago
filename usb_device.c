@@ -143,7 +143,7 @@ int usbOpenDevice(
                         fprintf(warningsFp, "Warning: cannot query manufacturer for VID=0x%04x PID=0x%04x: %s\n", dev->descriptor.idVendor, dev->descriptor.idProduct, usb_strerror());
                 }else{
                     errorCode = USBOPEN_ERR_NOTFOUND;
-                    /* printf("seen device from vendor ->%s<-\n", vendor); */
+                    /* fprintf(stdout, "seen device from vendor ->%s<-\n", vendor); */
                     if(shellStyleMatch(vendor, vendorNamePattern)){
                         len = product[0] = 0;
                         if(dev->descriptor.iProduct > 0){
@@ -155,7 +155,7 @@ int usbOpenDevice(
                                 fprintf(warningsFp, "Warning: cannot query product for VID=0x%04x PID=0x%04x: %s\n", dev->descriptor.idVendor, dev->descriptor.idProduct, usb_strerror());
                         }else{
                             errorCode = USBOPEN_ERR_NOTFOUND;
-                            /* printf("seen product ->%s<-\n", product); */
+                            /* fprintf(stdout, "seen product ->%s<-\n", product); */
                             if(shellStyleMatch(product, productNamePattern)){
                                 len = serial[0] = 0;
                                 if(dev->descriptor.iSerialNumber > 0){

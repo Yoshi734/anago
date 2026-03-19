@@ -18,13 +18,13 @@ void progress_init(void)
 			initialized = true;
 		}
 	}
-	printf("\n\n");
+	fprintf(stdout, "\n\n");
 }
 
 static void draw(const char *name, long offset, long count)
 {
 	if(count == 0){
-		printf("%s skip\n", name);
+		fprintf(stdout, "%s skip\n", name);
 		return;
 	}
 	const int barnum = 100 / 5;
@@ -33,7 +33,7 @@ static void draw(const char *name, long offset, long count)
 	char *t = bar;
 	int i;
 	assert(persent <= 100);
-	printf("%s 0x%06x/0x%06x ", name, (int)offset, (int)count);
+	fprintf(stdout, "%s 0x%06x/0x%06x ", name, (int)offset, (int)count);
 	*t++ = '|';
 	for(i = 0; i < persent / 5; i++){
 		if(i == barnum / 2){
@@ -49,7 +49,7 @@ static void draw(const char *name, long offset, long count)
 	}
 	*t++ = '|';
 	*t = '\0';
-	puts(bar);
+	fprintf(stdout, "%s\n", bar);
 }
 
 void progress_draw(long program_offset, long program_count, long charcter_offset, long charcter_count)

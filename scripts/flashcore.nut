@@ -23,7 +23,7 @@ function loopsize_get(t, trans, image_size, device_size)
 	return loop;
 }
 function program(
-	d, mapper, 
+	d, mapper, submapper,
 	cpu_trans, cpu_image_size, cpu_device_size,
 	ppu_trans, ppu_image_size, ppu_device_size
 )
@@ -31,6 +31,10 @@ function program(
 	local trans_empty = 0;
 	if(board.mappernum != mapper){
 		print("mapper number not connected\n");
+		return;
+	}
+	if(board.submappernum != submapper){
+		print("submapper number not connected\n");
 		return;
 	}
 	local cpu_loop = loopsize_get(board.cpu, cpu_trans, cpu_image_size, cpu_device_size);

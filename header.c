@@ -275,13 +275,28 @@ bool nesfile_load(const char *errorprefix, const char *file, struct romimage *r)
 	}
 	//mapper number check
 	{
-		long mapper = (buf[6] >> 4) & 0x0f;
+		long mapper = (buf[6] & 0xf0) >> 4;
 		mapper |= buf[7] & 0xf0;
+
+		if((buf[7] & 0x8) == 0){
+			// iNES header format
+			r->submappernum = 0;
+			}
+		else{
+			// NES 2.0 header format
+			mapper |= (buf[8] & 0x0f) << 8;
+			r->submappernum = (buf[8] & 0xf0) >> 4;
+			}
 #if ANAGO == 1
 		r->mappernum = mapper;
 #else
 		if(r->mappernum != mapper){
 			fprintf(stdout, "\033[1;31m%s NES header mapper error\033[0m\n", errorprefix);
+			Free(buf);
+			return false;
+		}
+		if(r->submappernum != submapper){
+			fprintf(stdout, "\033[1;31m%s NES header submapper error\033[0m\n", errorprefix);
 			Free(buf);
 			return false;
 		}

@@ -8,7 +8,7 @@ enum{
 };
 struct st_config{
 	//override config
-	long mapper;
+	long mapper, submapper;
 	int mirror, backupram;
 	//target filename
 	const char *ramimage, *romimage;
@@ -23,6 +23,7 @@ struct st_config{
 	long write_wait;
 	char flash_test_device[CONFIG_STR_LENGTH];
 	char flash_test_mapper[CONFIG_STR_LENGTH];
+	char flash_test_submapper[CONFIG_STR_LENGTH];
 };
 
 enum{

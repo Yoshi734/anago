@@ -32,11 +32,13 @@ void nesheader_set(const struct romimage *r, u8 *header)
 	long submappernum = r->submappernum;
 
 	if((mappernum<0) || (mappernum>4095)) {
-		fprintf(stdout, "\033[1;35mWarning : Parameter \"mappernum = %ld\" invalid in the script (set to 0)\033[0m\n", mappernum);
+		fprintf(stdout, "\033[1;35mWarning : Parameter \"mappernum = %ld\" invalid in the script and command-line (set to 0)\033[0m\n", mappernum);
 		mappernum = 0;
 	}
 	if((submappernum<0) || (submappernum>15)) {
-		fprintf(stdout, "\033[1;35mWarning : Parameter \"submappernum = %ld\" invalid in the script (set to 0)\033[0m\n", submappernum);
+		if(submappernum!=-1) {
+			fprintf(stdout, "\033[1;35mWarning : Parameter \"submappernum = %ld\" invalid in the script and command-line (set to 0)\033[0m\n", submappernum);
+		}
 		submappernum = 0;
 	}
 

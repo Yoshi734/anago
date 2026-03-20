@@ -7,9 +7,7 @@ function dump(d, mappernum, submappernum, increase_cpu, increase_ppu)
 	if(mappernum == -1){
 		mappernum = board.mappernum;
 	}
-print("1");	
     if ((submappernum == -1) && ("board" in getroottable()) && ("submappernum" in board)){
-print("2");	
 		submappernum = board.submappernum;
 	}
 
